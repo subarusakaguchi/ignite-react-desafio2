@@ -1,16 +1,35 @@
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 import { Button } from "./Button";
 
 interface ISideBarProps {
-  genres: Array<{
-    id: number;
-    name: 'action' | 'comedy' | 'documentary' | 'drama' | 'horror' | 'family';
-    title: string;
-  }>;
+  setSelectedGenre: (data: IGenreResponseProps) => void;
   handleClickButton: (id: number) => void;
   selectedGenreId: number;
 }
 
-export function SideBar({ genres, handleClickButton, selectedGenreId }: ISideBarProps) {
+interface IGenreResponseProps {
+  id: number;
+  name: 'action' | 'comedy' | 'documentary' | 'drama' | 'horror' | 'family';
+  title: string;
+}
+
+export function SideBar({ setSelectedGenre, handleClickButton, selectedGenreId }: ISideBarProps) {
+  
+  const [genres, setGenres] = useState<IGenreResponseProps[]>([]);
+
+  useEffect(() => {
+    api.get<IGenreResponseProps[]>('genres').then(response => {
+      setGenres(response.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    api.get<IGenreResponseProps>(`genres/${selectedGenreId}`).then(response => {
+      setSelectedGenre(response.data);
+    })
+  }, [selectedGenreId]);
+
   return (
     <nav className="sidebar">
       <span>Watch<p>Me</p></span>
